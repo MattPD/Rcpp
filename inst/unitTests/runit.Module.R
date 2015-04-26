@@ -21,10 +21,10 @@
 ## FIXME: This now (Apr 2015) appears to fail on Windows 
 .onWindows <- .Platform$OS.type == "windows"
 
-.runThisTest <- ! .onWindows && Sys.getenv("RunAllRcppTests") == "yes"
+.runThisTest <- Sys.getenv("RunAllRcppTests") == "yes"
 
 if( .runThisTest && Rcpp:::capabilities()[["Rcpp modules"]] ) {
-
+    
     .tearDown <- function(){
         gc()
     }
@@ -68,8 +68,10 @@ if( .runThisTest && Rcpp:::capabilities()[["Rcpp modules"]] ) {
 
         w$x <- 2.0
         checkEquals( w$x, 2.0 )
-
-        checkException( { w$y <- 3 } )
+        
+        if (!.onWindows) {
+            checkException( { w$y <- 3 } )
+        }
     }
 
     test.Module.member <- function(){
@@ -79,10 +81,12 @@ if( .runThisTest && Rcpp:::capabilities()[["Rcpp modules"]] ) {
 
         w$x <- 2.0
         checkEquals( w$x, 2.0 )
-
-        checkException( { w$y <- 3 } )
+        
+        if (!.onWindows) {
+            checkException( { w$y <- 3 } )
+        }
     }
-
+    
     test.Module.Constructor <- function() {
         r <- new( Randomizer, 10.0, 20.0 )
         set.seed(123)
@@ -96,5 +100,4 @@ if( .runThisTest && Rcpp:::capabilities()[["Rcpp modules"]] ) {
         checkEquals( test_const_reference( seq(0,10) ), 11L )
         checkEquals( test_const( seq(0,10) ), 11L )
     }
-
 }
